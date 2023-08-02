@@ -16439,25 +16439,59 @@ Adapted from GitHub theme
       </div>
       <div class="cell border-box-sizing code_cell rendered">
         <div class="input">
-          <div class="prompt input_prompt">In&nbsp;[30]:</div>
+          <div class="prompt input_prompt">In&nbsp;[416]:</div>
           <div class="inner_cell">
             <div class="input_area">
               <div class=" highlight hl-ipython3">
-                <pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+                <pre><span></span><span class="c1"># packages for data collection and processing</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">re</span>
 
-<span class="c1"># Import and process age-standardized suicide rate data for both sexes (# of people per 100,000)</span>
-<span class="c1"># Need 3 fields (country, year, and suicides per 100000 people)</span>
-<span class="n">suicide_rates_all_countries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/suicide rate per 100k 2012-2017.csv&#39;</span><span class="p">)</span>
-<span class="n">suicide_rates_all_countries</span> <span class="o">=</span> <span class="n">suicide_rates_all_countries</span><span class="p">[</span><span class="n">suicide_rates_all_countries</span><span class="p">[</span><span class="s2">&quot;Dim1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Both sexes&quot;</span><span class="p">]</span>
-<span class="n">suicide_rates_all_countries</span> <span class="o">=</span> <span class="n">suicide_rates_all_countries</span><span class="p">[[</span><span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;Period&#39;</span><span class="p">,</span> <span class="s1">&#39;FactValueNumeric&#39;</span><span class="p">]]</span>
-<span class="n">suicide_rates_all_countries</span> <span class="o">=</span> <span class="n">suicide_rates_all_countries</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Period&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;FactValueNumeric&quot;</span><span class="p">:</span><span class="s2">&quot;Suicides per 10000 people&quot;</span><span class="p">})</span>
-<span class="n">suicide_rates_all_countries</span> <span class="o">=</span> <span class="n">suicide_rates_all_countries</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
-<span class="n">suicide_rates_all_countries</span> <span class="o">=</span> <span class="n">suicide_rates_all_countries</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="n">suicide_rates_all_countries</span>
+<span class="c1"># packages for plotting graphs (feature visualization)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># packages for ML and filling in missing values</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">linear_model</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-heart-disease-mortality-(death-rate)-data"><strong>Add heart disease mortality (death rate)
+                data</strong><a class="anchor-link" href="#Add-heart-disease-mortality-(death-rate)-data">&#182;</a>
+            </h3>
+            <p>The first step we will take is to import the <a
+                href="https://ourworldindata.org/grapher/cardiovascular-disease-death-rates">heart disease death
+                rate</a> (target feature) data and remove the columns we won't use. This feature is an age-standardized
+              estimate for both sexes and has data from 1990-2019 but we will only be using the rows from 2012-2017 in
+              this table.</p>
+
+          </div>
+        </div>
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[417]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># Import and process age-standardized heart disease death rates data for both sexes (# of heart disease deaths per 100000 people)</span>
+<span class="n">heart_disease_death_rates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/cardiovascular-disease-death-rates.csv&#39;</span><span class="p">)</span>
+<span class="n">heart_disease_death_rates</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[[</span><span class="s1">&#39;Entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Deaths - Cardiovascular diseases - Sex: Both - Age: Age-standardized (Rate)&#39;</span><span class="p">]]</span>
+<span class="n">heart_disease_death_rates</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Entity&quot;</span><span class="p">:</span><span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s1">&#39;Deaths - Cardiovascular diseases - Sex: Both - Age: Age-standardized (Rate)&#39;</span><span class="p">:</span><span class="s1">&#39;Heart Disease Mortality Rate (Deaths per 100K people)&#39;</span><span class="p">})</span>
+<span class="n">heart_disease_death_rates</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">2012</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">2017</span><span class="p">)]</span>
+<span class="n">heart_disease_death_rates</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">percentage_missing_values_heart_disease_mortality</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Heart Disease Mortality Rate (Deaths per 100K people)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Heart Disease Mortality Rate (Deaths per 100K people)&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage Missing Values: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_heart_disease_mortality</span><span class="p">)</span>
+<span class="n">heart_disease_death_rates</span>
 </pre>
               </div>
 
@@ -16471,7 +16505,18 @@ Adapted from GitHub theme
 
             <div class="output_area">
 
-              <div class="prompt output_prompt">Out[30]:</div>
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percentage Missing Values:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[417]:</div>
 
 
 
@@ -16496,7 +16541,7 @@ Adapted from GitHub theme
                         <th></th>
                         <th>Country</th>
                         <th>Year</th>
-                        <th>Suicides per 10000 people</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -16504,31 +16549,31 @@ Adapted from GitHub theme
                         <th>0</th>
                         <td>Afghanistan</td>
                         <td>2012</td>
-                        <td>6.24</td>
+                        <td>618.45</td>
                       </tr>
                       <tr>
                         <th>1</th>
                         <td>Afghanistan</td>
                         <td>2013</td>
-                        <td>6.17</td>
+                        <td>607.69</td>
                       </tr>
                       <tr>
                         <th>2</th>
                         <td>Afghanistan</td>
                         <td>2014</td>
-                        <td>6.02</td>
+                        <td>600.55</td>
                       </tr>
                       <tr>
                         <th>3</th>
                         <td>Afghanistan</td>
                         <td>2015</td>
-                        <td>5.99</td>
+                        <td>597.02</td>
                       </tr>
                       <tr>
                         <th>4</th>
                         <td>Afghanistan</td>
                         <td>2016</td>
-                        <td>6.01</td>
+                        <td>591.59</td>
                       </tr>
                       <tr>
                         <th>...</th>
@@ -16537,38 +16582,38 @@ Adapted from GitHub theme
                         <td>...</td>
                       </tr>
                       <tr>
-                        <th>1093</th>
+                        <th>1363</th>
                         <td>Zimbabwe</td>
                         <td>2013</td>
-                        <td>31.40</td>
+                        <td>331.36</td>
                       </tr>
                       <tr>
-                        <th>1094</th>
+                        <th>1364</th>
                         <td>Zimbabwe</td>
                         <td>2014</td>
-                        <td>30.83</td>
+                        <td>330.58</td>
                       </tr>
                       <tr>
-                        <th>1095</th>
+                        <th>1365</th>
                         <td>Zimbabwe</td>
                         <td>2015</td>
-                        <td>30.74</td>
+                        <td>329.57</td>
                       </tr>
                       <tr>
-                        <th>1096</th>
+                        <th>1366</th>
                         <td>Zimbabwe</td>
                         <td>2016</td>
-                        <td>28.70</td>
+                        <td>327.64</td>
                       </tr>
                       <tr>
-                        <th>1097</th>
+                        <th>1367</th>
                         <td>Zimbabwe</td>
                         <td>2017</td>
-                        <td>25.85</td>
+                        <td>324.92</td>
                       </tr>
                     </tbody>
                   </table>
-                  <p>1098 rows × 3 columns</p>
+                  <p>1368 rows × 3 columns</p>
                 </div>
               </div>
 
@@ -16578,19 +16623,56 @@ Adapted from GitHub theme
         </div>
 
       </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-anxiety-disorder-prevalence-data"><strong>Add anxiety disorder prevalence data</strong><a
+                class="anchor-link" href="#Add-anxiety-disorder-prevalence-data">&#182;</a></h3>
+            <p>The second step we will take is to import the <a
+                href="https://ourworldindata.org/grapher/anxiety-disorders-prevalence?tab=chart">anxiety disorder
+                prevalence data</a> and remove the columns we aren't going to use. This feature is an age-standardized
+              estimate and is a % of each country's population that comes from Our World in Data. The anxiety prevalence
+              table includes data from 2012-2017 for both sexes. There are no missing values in the anxiety data before
+              joining, so no imputation is required. However, after merging the anxiety data with the heart disease
+              mortality data frame, we can see that 6.5% of the anxiety data has missing values in the main data frame.
+              Therefore, we have to fill each missing value with the average anxiety prevalence for that particular
+              year. After doing so, there are no more missing values.</p>
+
+          </div>
+        </div>
+      </div>
       <div class="cell border-box-sizing code_cell rendered">
         <div class="input">
-          <div class="prompt input_prompt">In&nbsp;[31]:</div>
+          <div class="prompt input_prompt">In&nbsp;[418]:</div>
           <div class="inner_cell">
             <div class="input_area">
               <div class=" highlight hl-ipython3">
-                <pre><span></span><span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/BMI.csv&#39;</span><span class="p">)</span>
-<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="p">[[</span><span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;Period&#39;</span><span class="p">,</span> <span class="s1">&#39;Dim1&#39;</span><span class="p">,</span><span class="s1">&#39;FactValueNumeric&#39;</span><span class="p">]]</span>
-<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Period&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim1&quot;</span><span class="p">:</span><span class="s2">&quot;Sex&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim2&quot;</span><span class="p">:</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="s2">&quot;FactValueNumeric&quot;</span><span class="p">:</span> <span class="s2">&quot;Mean BMI&quot;</span><span class="p">})</span>
-<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="p">[</span><span class="n">bmi_all_countries</span><span class="p">[</span><span class="s2">&quot;Sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Both sexes&quot;</span><span class="p">]</span>
-<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
-<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-<span class="n">bmi_all_countries</span>
+                <pre><span></span><span class="c1"># Import and process % of population with anxiety disorders data for both sexes</span>
+<span class="c1"># Extract 3 fields (country, year, and anxiety disorder prevalence</span>
+<span class="n">anxiety_prevalence_all_countries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/anxiety-disorders-prevalence.csv&#39;</span><span class="p">)</span>
+<span class="n">anxiety_prevalence_all_countries</span> <span class="o">=</span> <span class="n">anxiety_prevalence_all_countries</span><span class="p">[[</span><span class="s1">&#39;Entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Anxiety disorders (share of population) - Sex: Both - Age: Age-standardized&#39;</span><span class="p">]]</span>
+<span class="n">anxiety_prevalence_all_countries</span> <span class="o">=</span> <span class="n">anxiety_prevalence_all_countries</span><span class="p">[(</span><span class="n">anxiety_prevalence_all_countries</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">2012</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">anxiety_prevalence_all_countries</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">2017</span><span class="p">)]</span>
+<span class="n">anxiety_prevalence_all_countries</span> <span class="o">=</span> <span class="n">anxiety_prevalence_all_countries</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Entity&#39;</span><span class="p">:</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Anxiety disorders (share of population) - Sex: Both - Age: Age-standardized&#39;</span><span class="p">:</span><span class="s2">&quot;</span><span class="si">% o</span><span class="s2">f population with anxiety disorders&quot;</span><span class="p">})</span>
+<span class="n">anxiety_prevalence_all_countries</span> <span class="o">=</span> <span class="n">anxiety_prevalence_all_countries</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">anxiety_prevalence_all_countries</span> <span class="o">=</span> <span class="n">anxiety_prevalence_all_countries</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Compute % of missing values in anxiety disorder data</span>
+<span class="n">percentage_missing_values_anxiety_before</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">anxiety_prevalence_all_countries</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">anxiety_prevalence_all_countries</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percent Missing Anxiety Values Before Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_anxiety_before</span><span class="p">)</span>
+<span class="c1"># Substituting all NaN values in anxiety col of main dataframe with mean values of corresponding years</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">anxiety_prevalence_all_countries</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">anxiety_col</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]][</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span>
+        <span class="n">mean_anxiety</span> <span class="o">=</span> <span class="n">anxiety_col</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_anxiety</span>
+<span class="c1"># Compute % of missing values in anxiety after join</span>
+<span class="n">percentage_missing_values_anxiety_after</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f population with anxiety disorders&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percent Missing Anxiety Values After Join and Imputation: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_anxiety_after</span><span class="p">)</span>
+<span class="c1"># Outputting heart disease death rates df with anxiety column</span>
+<span class="n">heart_disease_death_rates</span>
 </pre>
               </div>
 
@@ -16604,7 +16686,1614 @@ Adapted from GitHub theme
 
             <div class="output_area">
 
-              <div class="prompt output_prompt">Out[31]:</div>
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percent Missing Anxiety Values Before Join:  0.0
+Percent Missing Anxiety Values After Join and Imputation:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[418]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
+                        <th>% of population with anxiety disorders</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>618.45</td>
+                        <td>4.739260</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>607.69</td>
+                        <td>4.766758</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>600.55</td>
+                        <td>4.793179</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>597.02</td>
+                        <td>4.810425</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>591.59</td>
+                        <td>4.815518</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>331.36</td>
+                        <td>4.113508</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>330.58</td>
+                        <td>4.119858</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>329.57</td>
+                        <td>4.124367</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>327.64</td>
+                        <td>4.126087</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>324.92</td>
+                        <td>4.126698</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 4 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-BMI-data"><strong>Add BMI data</strong><a class="anchor-link" href="#Add-BMI-data">&#182;</a>
+            </h3>
+            <p>The third step we will take is to import the <a
+                href="https://www.who.int/data/gho/data/indicators/indicator-details/GHO/mean-bmi-(kg-m-">mean BMI
+                data</a>-(age-standardized-estimate)) and remove the columns we aren't going to use. This feature data
+              comes from the World Health Organization. The mean BMI table includes data from 2012-2017 that separates
+              BMI by sex. We will only consider the mean BMI for both sexes combined (is an average of both sexes
+              separately). There are 2.09% missing values in the BMI data before joining. After merging the BMI data
+              with the heart disease mortality data frame, we can see that 43.25% of the BMI data has missing values in
+              the main data frame. Therefore, we have to perform imputation by filling each missing value with the
+              average mean BMI for that particular year. After doing so, there are no more missing values. However, this
+              might introduce some bias.</p>
+
+          </div>
+        </div>
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[419]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># Import and process mean BMI data for both sexes</span>
+<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/BMI.csv&#39;</span><span class="p">)</span>
+<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="p">[[</span><span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;Period&#39;</span><span class="p">,</span> <span class="s1">&#39;Dim1&#39;</span><span class="p">,</span><span class="s1">&#39;FactValueNumeric&#39;</span><span class="p">]]</span>
+<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Period&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim1&quot;</span><span class="p">:</span><span class="s2">&quot;Sex&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim2&quot;</span><span class="p">:</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="s2">&quot;FactValueNumeric&quot;</span><span class="p">:</span> <span class="s2">&quot;Mean BMI&quot;</span><span class="p">})</span>
+<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="p">[</span><span class="n">bmi_all_countries</span><span class="p">[</span><span class="s2">&quot;Sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Both sexes&quot;</span><span class="p">]</span>
+<span class="c1"># Sort data frame by country and year and reset index</span>
+<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">bmi_all_countries</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean BMI&#39;</span><span class="p">]]</span>
+<span class="c1"># Compute % of missing values in BMI data frame before join</span>
+<span class="n">percentage_missing_values_bmi_before</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">bmi_all_countries</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">bmi_all_countries</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Mean BMI Before Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_bmi_before</span><span class="p">)</span>
+<span class="c1"># Merge BMI data with heart disease mortality data frame, Substituting all NaN values in BMI col of main dataframe with mean values of corresponding years</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bmi_all_countries</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">bmi_col</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]][</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="n">bmi_mean</span> <span class="o">=</span> <span class="n">bmi_col</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bmi_mean</span>
+<span class="c1"># Compute % of missing values in BMI after join</span>
+<span class="n">percentage_missing_values_bmi_after</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean BMI&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values in Mean BMI After Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_bmi_after</span><span class="p">)</span>
+<span class="c1"># Outputting heart disease death rates df with BMI column</span>
+<span class="n">heart_disease_death_rates</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percentage of Missing Values for Mean BMI Before Join:  2.094240837696335
+Percentage of Missing Values in Mean BMI After Join:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[419]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
+                        <th>% of population with anxiety disorders</th>
+                        <th>Mean BMI</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>618.45</td>
+                        <td>4.739260</td>
+                        <td>22.900000</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>607.69</td>
+                        <td>4.766758</td>
+                        <td>23.000000</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>600.55</td>
+                        <td>4.793179</td>
+                        <td>23.200000</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>597.02</td>
+                        <td>4.810425</td>
+                        <td>23.300000</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>591.59</td>
+                        <td>4.815518</td>
+                        <td>23.400000</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>331.36</td>
+                        <td>4.113508</td>
+                        <td>24.191756</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>330.58</td>
+                        <td>4.119858</td>
+                        <td>24.120932</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>329.57</td>
+                        <td>4.124367</td>
+                        <td>24.157551</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>327.64</td>
+                        <td>4.126087</td>
+                        <td>24.128846</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>324.92</td>
+                        <td>4.126698</td>
+                        <td>24.046983</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 5 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-mean-HDL-cholesterol-data"><strong>Add mean HDL cholesterol data</strong><a class="anchor-link"
+                href="#Add-mean-HDL-cholesterol-data">&#182;</a></h3>
+            <p>The fourth step we will take is to import the <a
+                href="https://www.who.int/data/gho/data/indicators/indicator-details/GHO/gho-mean-hdl-cholesterol-crude">mean
+                HDL cholesterol data</a> and remove the columns we aren't going to use. This feature data comes from the
+              World Health Organization. The mean HDL cholesterol table includes data from 2012-2017 that separates mean
+              HDL cholesterol by sex. We will only consider the mean HDL cholesterol for both sexes combined (is an
+              average of both sexes separately). There are no missing values in the mean HDL cholesterol data before
+              joining, so no initial imputation is required. However, after merging the cholesterol data with the heart
+              disease mortality data frame, we can see that 19.37% of the cholesterol data has missing values in the
+              main data frame. Therefore, we have to fill each missing value with the average mean HDL cholesterol for
+              that particular year. After doing so, there are no more missing values but we must keep in mind that some
+              bias might be introduced.</p>
+
+          </div>
+        </div>
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[420]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># Import mean HDL cholesterol data of both sexes</span>
+<span class="n">mean_HDL_cholesterol</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/cholestrol2012-2017.csv&quot;</span><span class="p">)</span>
+<span class="n">mean_HDL_cholesterol</span> <span class="o">=</span> <span class="n">mean_HDL_cholesterol</span><span class="p">[[</span><span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;Period&#39;</span><span class="p">,</span> <span class="s1">&#39;Dim1&#39;</span><span class="p">,</span><span class="s1">&#39;FactValueNumeric&#39;</span><span class="p">]]</span>
+<span class="n">mean_HDL_cholesterol</span> <span class="o">=</span> <span class="n">mean_HDL_cholesterol</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Period&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim1&quot;</span><span class="p">:</span><span class="s2">&quot;Sex&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim2&quot;</span><span class="p">:</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="s2">&quot;FactValueNumeric&quot;</span><span class="p">:</span> <span class="s2">&quot;Cholesterol Level&quot;</span><span class="p">})</span>
+<span class="n">mean_HDL_cholesterol</span> <span class="o">=</span> <span class="n">mean_HDL_cholesterol</span><span class="p">[</span><span class="n">mean_HDL_cholesterol</span><span class="p">[</span><span class="s2">&quot;Sex&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Both sexes&quot;</span><span class="p">]</span>
+<span class="c1"># Sort data frame by country and year and reset index</span>
+<span class="n">mean_HDL_cholesterol</span> <span class="o">=</span> <span class="n">mean_HDL_cholesterol</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">mean_HDL_cholesterol</span> <span class="o">=</span> <span class="n">mean_HDL_cholesterol</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">mean_HDL_cholesterol</span>  <span class="o">=</span> <span class="n">mean_HDL_cholesterol</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Cholesterol Level&#39;</span><span class="p">]]</span>
+<span class="c1"># Compute % of missing values in cholesterol data frame before join</span>
+<span class="n">percentage_missing_values_cholesterol_before</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">mean_HDL_cholesterol</span><span class="p">[</span><span class="s1">&#39;Cholesterol Level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">mean_HDL_cholesterol</span><span class="p">[</span><span class="s1">&#39;Cholesterol Level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Mean HDL Cholesterol Before Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_cholesterol_before</span><span class="p">)</span>
+<span class="c1"># Merge cholesteorl data with heart disease mortality data frame, Substituting all NaN values in mean HDL cholesterol col of main dataframe with mean values of corresponding years</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_HDL_cholesterol</span><span class="p">[</span><span class="s1">&#39;Cholesterol Level&#39;</span><span class="p">]</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">hdl_cholesterol_col</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]][</span><span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="n">hdl_cholesterol_mean</span> <span class="o">=</span> <span class="n">hdl_cholesterol_col</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hdl_cholesterol_mean</span>
+<span class="c1"># Compute % of missing values in mean HDL cholesterol after join</span>
+<span class="n">percentage_missing_values_cholesterol_after</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Mean HDL Cholesterol&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values in Cholesterol Level After Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_cholesterol_after</span><span class="p">)</span>
+<span class="c1"># Outputting heart disease death rates df with mean HDL cholesterol column</span>
+<span class="n">heart_disease_death_rates</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percentage of Missing Values for Mean HDL Cholesterol Before Join:  0.0
+Percentage of Missing Values in Cholesterol Level After Join:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[420]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
+                        <th>% of population with anxiety disorders</th>
+                        <th>Mean BMI</th>
+                        <th>Mean HDL Cholesterol</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>618.45</td>
+                        <td>4.739260</td>
+                        <td>22.900000</td>
+                        <td>1.100000</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>607.69</td>
+                        <td>4.766758</td>
+                        <td>23.000000</td>
+                        <td>1.100000</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>600.55</td>
+                        <td>4.793179</td>
+                        <td>23.200000</td>
+                        <td>1.100000</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>597.02</td>
+                        <td>4.810425</td>
+                        <td>23.300000</td>
+                        <td>1.100000</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>591.59</td>
+                        <td>4.815518</td>
+                        <td>23.400000</td>
+                        <td>1.100000</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>331.36</td>
+                        <td>4.113508</td>
+                        <td>24.191756</td>
+                        <td>1.169098</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>330.58</td>
+                        <td>4.119858</td>
+                        <td>24.120932</td>
+                        <td>1.169612</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>329.57</td>
+                        <td>4.124367</td>
+                        <td>24.157551</td>
+                        <td>1.168585</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>327.64</td>
+                        <td>4.126087</td>
+                        <td>24.128846</td>
+                        <td>1.171152</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>324.92</td>
+                        <td>4.126698</td>
+                        <td>24.046983</td>
+                        <td>1.171152</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 6 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-low-physical-activity-DALYs-data"><strong>Add low physical activity DALYs data</strong><a
+                class="anchor-link" href="#Add-low-physical-activity-DALYs-data">&#182;</a></h3>
+            <p>The fifth step we will take is to import the <a
+                href="https://ourworldindata.org/grapher/disease-burden-by-risk-factor">low physical activity DALYs
+                data</a> and remove the columns we aren't going to use. This feature data comes from the World Health
+              Organization. The low physical activity DALYs table includes data from 2012-2017 that separates low
+              physical activity by sex. We will only consider the low physical activity for both sexes combined (is an
+              average of both sexes separately). There are no missing values in the low physical activity DALYs data
+              before joining, so no initial imputation is required. After merging the low physical activity data with
+              the heart disease mortality data frame, we can see that there are no missing values in the low physical
+              activity column of the main data frame. Thus, no further imputation is required.</p>
+
+          </div>
+        </div>
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[421]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># Import low physical activity DALYs data, select and rename relevant columns, and choose all rows with years 2012-2017 (will only consider data for both sexes)</span>
+<span class="n">low_phys_activity</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/disease-burden-by-risk-factor.csv&quot;</span><span class="p">)</span>
+<span class="n">low_phys_activity</span> <span class="o">=</span> <span class="n">low_phys_activity</span><span class="p">[[</span><span class="s1">&#39;Entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;DALYs (Disability-Adjusted Life Years) - Cause: All causes - Risk: Low physical activity - Sex: Both - Age: All Ages (Number)&#39;</span><span class="p">]]</span>
+<span class="n">low_phys_activity</span> <span class="o">=</span> <span class="n">low_phys_activity</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">low_phys_activity</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">2012</span><span class="p">,</span><span class="mi">2013</span><span class="p">,</span><span class="mi">2014</span><span class="p">,</span><span class="mi">2015</span><span class="p">,</span><span class="mi">2016</span><span class="p">,</span><span class="mi">2017</span><span class="p">])]</span>
+<span class="n">low_phys_activity</span> <span class="o">=</span> <span class="n">low_phys_activity</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Entity&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span>  <span class="s2">&quot;DALYs (Disability-Adjusted Life Years) - Cause: All causes - Risk: Low physical activity - Sex: Both - Age: All Ages (Number)&quot;</span><span class="p">:</span> <span class="s2">&quot;Low Physical Activity DALYs&quot;</span><span class="p">})</span>
+<span class="c1"># Sort low physical activity DALYs data by country and year and reset indexes and choose only country, year, and low physical activity DALYs columns</span>
+<span class="n">low_phys_activity</span> <span class="o">=</span> <span class="n">low_phys_activity</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">low_phys_activity</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Sex&#39;</span><span class="p">,</span> <span class="s1">&#39;Both sexes&#39;</span><span class="p">)</span>
+<span class="n">low_phys_activity</span> <span class="o">=</span> <span class="n">low_phys_activity</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">low_phys_activity</span> <span class="o">=</span> <span class="n">low_phys_activity</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Low Physical Activity DALYs&#39;</span><span class="p">]]</span>
+<span class="c1"># Compute % of missing values in low physical activity data frame before join</span>
+<span class="n">percentage_missing_values_low_physical_activity_before</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">low_phys_activity</span><span class="p">[</span><span class="s1">&#39;Low Physical Activity DALYs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">low_phys_activity</span><span class="p">[</span><span class="s1">&#39;Low Physical Activity DALYs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Low Physical Activity DALYs Before Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_cholesterol_before</span><span class="p">)</span>
+<span class="c1"># Merge low physical activity DALY data with heart disease mortality data frame and compute % of missing values in low physical activity after join with main dataframe (no imputation required since 0% values missing after join)</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Low Physical Activity DALYs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">low_phys_activity</span><span class="p">[</span><span class="s1">&#39;Low Physical Activity DALYs&#39;</span><span class="p">]</span>
+<span class="n">percentage_missing_values_low_physical_activity_after</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Low Physical Activity DALYs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Low Physical Activity DALYs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values in Low Physical Activity DALYs Level After Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_low_physical_activity_after</span><span class="p">)</span>
+<span class="c1"># Outputting heart disease death rates data frame after </span>
+<span class="n">heart_disease_death_rates</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percentage of Missing Values for Low Physical Activity DALYs Before Join:  0.0
+Percentage of Missing Values in Low Physical Activity DALYs Level After Join:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[421]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
+                        <th>% of population with anxiety disorders</th>
+                        <th>Mean BMI</th>
+                        <th>Mean HDL Cholesterol</th>
+                        <th>Low Physical Activity DALYs</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>618.45</td>
+                        <td>4.739260</td>
+                        <td>22.900000</td>
+                        <td>1.100000</td>
+                        <td>87161.46</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>607.69</td>
+                        <td>4.766758</td>
+                        <td>23.000000</td>
+                        <td>1.100000</td>
+                        <td>89240.38</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>600.55</td>
+                        <td>4.793179</td>
+                        <td>23.200000</td>
+                        <td>1.100000</td>
+                        <td>91722.71</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>597.02</td>
+                        <td>4.810425</td>
+                        <td>23.300000</td>
+                        <td>1.100000</td>
+                        <td>94787.74</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>591.59</td>
+                        <td>4.815518</td>
+                        <td>23.400000</td>
+                        <td>1.100000</td>
+                        <td>97995.82</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>331.36</td>
+                        <td>4.113508</td>
+                        <td>24.191756</td>
+                        <td>1.169098</td>
+                        <td>6607.48</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>330.58</td>
+                        <td>4.119858</td>
+                        <td>24.120932</td>
+                        <td>1.169612</td>
+                        <td>6911.81</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>329.57</td>
+                        <td>4.124367</td>
+                        <td>24.157551</td>
+                        <td>1.168585</td>
+                        <td>7196.88</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>327.64</td>
+                        <td>4.126087</td>
+                        <td>24.128846</td>
+                        <td>1.171152</td>
+                        <td>7424.67</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>324.92</td>
+                        <td>4.126698</td>
+                        <td>24.046983</td>
+                        <td>1.171152</td>
+                        <td>7655.22</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 7 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-spirits-consumption-data"><strong>Add spirits consumption data</strong><a class="anchor-link"
+                href="#Add-spirits-consumption-data">&#182;</a></h3>
+            <p>The sixth step we will take is to import the <a
+                href="https://ourworldindata.org/grapher/spirits-consumption-per-person">spirits consumption data</a>,
+              which relates to alcohol consumption, and remove the columns we aren't going to use. This feature data
+              comes from Our World in Data. The spirits consumption per person table includes data from 2012-2017 that
+              has spirits consumption rates for both sexes combined. There are no missing values in the spirits
+              consumption data before joining, so no initial imputation is required. After merging the spirits
+              consumption data with the heart disease mortality data frame, we can see that there are 21.28% missing
+              values in the spirits consumption column of the main data frame. Therefore, we have to fill each missing
+              value with the average spirits consumption for that particular year. After doing so, there are no more
+              missing values but we must keep in mind that some bias might be introduced.</p>
+
+          </div>
+        </div>
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[422]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># Import spirits consumption data, select and rename relevant columns, and choose all rows with years 2012-2017 (will only consider data for both sexes)</span>
+<span class="n">spirits_consumption</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/spirits-consumption-per-person.csv&quot;</span><span class="p">)</span>
+<span class="n">spirits_consumption</span> <span class="o">=</span> <span class="n">spirits_consumption</span><span class="p">[[</span><span class="s1">&#39;Entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Indicator:Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol) - Beverage Types:Spirits&#39;</span><span class="p">]]</span>
+<span class="n">spirits_consumption</span> <span class="o">=</span> <span class="n">spirits_consumption</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">spirits_consumption</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">2012</span><span class="p">,</span><span class="mi">2013</span><span class="p">,</span><span class="mi">2014</span><span class="p">,</span><span class="mi">2015</span><span class="p">,</span><span class="mi">2016</span><span class="p">,</span><span class="mi">2017</span><span class="p">])]</span>
+<span class="c1"># Sort spirits consumption data by country and year and reset indexes and choose only country, and spirits consumption columns</span>
+<span class="n">spirits_consumption</span> <span class="o">=</span> <span class="n">spirits_consumption</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Entity&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span>  <span class="s2">&quot;Indicator:Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol) - Beverage Types:Spirits&quot;</span><span class="p">:</span> <span class="s2">&quot;Spirits Consumption&quot;</span><span class="p">})</span>
+<span class="n">spirits_consumption</span> <span class="o">=</span> <span class="n">spirits_consumption</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">spirits_consumption</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Sex&#39;</span><span class="p">,</span> <span class="s1">&#39;Both sexes&#39;</span><span class="p">)</span>
+<span class="n">spirits_consumption</span> <span class="o">=</span> <span class="n">spirits_consumption</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">spirits_consumption</span> <span class="o">=</span> <span class="n">spirits_consumption</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]]</span>
+<span class="c1"># Compute % of missing values in spirits consumption data frame before join</span>
+<span class="n">percentage_missing_values_spirits_consumption_before</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">spirits_consumption</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">spirits_consumption</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Spirits Consumption Before Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_spirits_consumption_before</span><span class="p">)</span>
+<span class="c1"># Merge spirits consumption data with heart disease mortality data frame, Substituting all NaN values in spirits consumption column of main dataframe with mean values of corresponding years</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spirits_consumption</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">spirits_consumption_col</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]][</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="n">spirits_consumption_mean</span> <span class="o">=</span> <span class="n">spirits_consumption_col</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spirits_consumption_mean</span>
+<span class="c1"># Compute % of missing values in spirits consumption after join</span>
+<span class="n">percentage_missing_values_spirits_consumption_after</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Spirits Consumption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Spirits Consumption After Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_spirits_consumption_after</span><span class="p">)</span>
+<span class="n">heart_disease_death_rates</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percentage of Missing Values for Spirits Consumption Before Join:  0.0
+Percentage of Missing Values for Spirits Consumption After Join:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[422]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
+                        <th>% of population with anxiety disorders</th>
+                        <th>Mean BMI</th>
+                        <th>Mean HDL Cholesterol</th>
+                        <th>Low Physical Activity DALYs</th>
+                        <th>Spirits Consumption</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>618.45</td>
+                        <td>4.739260</td>
+                        <td>22.900000</td>
+                        <td>1.100000</td>
+                        <td>87161.46</td>
+                        <td>1.273202</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>607.69</td>
+                        <td>4.766758</td>
+                        <td>23.000000</td>
+                        <td>1.100000</td>
+                        <td>89240.38</td>
+                        <td>1.244211</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>600.55</td>
+                        <td>4.793179</td>
+                        <td>23.200000</td>
+                        <td>1.100000</td>
+                        <td>91722.71</td>
+                        <td>0.010000</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>597.02</td>
+                        <td>4.810425</td>
+                        <td>23.300000</td>
+                        <td>1.100000</td>
+                        <td>94787.74</td>
+                        <td>1.203114</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>591.59</td>
+                        <td>4.815518</td>
+                        <td>23.400000</td>
+                        <td>1.100000</td>
+                        <td>97995.82</td>
+                        <td>0.010000</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>331.36</td>
+                        <td>4.113508</td>
+                        <td>24.191756</td>
+                        <td>1.169098</td>
+                        <td>6607.48</td>
+                        <td>1.617827</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>330.58</td>
+                        <td>4.119858</td>
+                        <td>24.120932</td>
+                        <td>1.169612</td>
+                        <td>6911.81</td>
+                        <td>1.517327</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>329.57</td>
+                        <td>4.124367</td>
+                        <td>24.157551</td>
+                        <td>1.168585</td>
+                        <td>7196.88</td>
+                        <td>1.503970</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>327.64</td>
+                        <td>4.126087</td>
+                        <td>24.128846</td>
+                        <td>1.171152</td>
+                        <td>7424.67</td>
+                        <td>1.489531</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>324.92</td>
+                        <td>4.126698</td>
+                        <td>24.046983</td>
+                        <td>1.171152</td>
+                        <td>7655.22</td>
+                        <td>1.472129</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 8 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-smoking-death-percentage-data"><strong>Add smoking death percentage data</strong><a
+                class="anchor-link" href="#Add-smoking-death-percentage-data">&#182;</a></h3>
+            <p>The seventh step we will take is to import the <a
+                href="https://ourworldindata.org/grapher/share-deaths-smoking">smoking death percentage data</a>, which
+              is an age-standardized estimate (share of smoking deaths), and remove the columns we aren't going to use.
+              This feature data comes from Our World in Data. The smoking death percentage (for each country's
+              population) table includes data from 2012-2017 that has smoking death percentages for both sexes combined.
+              There are no missing values in the smoking death percentage data before joining, so no initial imputation
+              is required. After merging the smoking death percentage data with the heart disease mortality data frame,
+              we can see that there are no missing values in the smoking death percentage column of the main data frame.
+              Thus, no further imputation is required.</p>
+
+          </div>
+        </div>
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[423]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># Import smoking death percentage data, select and rename relevant columns, and choose all rows with years 2012-2017 (will only consider data for both sexes)</span>
+<span class="n">share_deaths_smoking</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/share-deaths-smoking.csv&quot;</span><span class="p">)</span>
+<span class="n">share_deaths_smoking</span> <span class="o">=</span> <span class="n">share_deaths_smoking</span><span class="p">[[</span><span class="s1">&#39;Entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Deaths - Cause: All causes - Risk: Smoking - OWID - Sex: Both - Age: Age-standardized (Percent)&#39;</span><span class="p">]]</span>
+<span class="n">share_deaths_smoking</span> <span class="o">=</span> <span class="n">share_deaths_smoking</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">share_deaths_smoking</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">2012</span><span class="p">,</span><span class="mi">2013</span><span class="p">,</span><span class="mi">2014</span><span class="p">,</span><span class="mi">2015</span><span class="p">,</span><span class="mi">2016</span><span class="p">,</span><span class="mi">2017</span><span class="p">])]</span>
+<span class="c1"># Sort spirits consumption data by country and year and reset indexes and choose only country, and spirits consumption columns</span>
+<span class="n">share_deaths_smoking</span> <span class="o">=</span> <span class="n">share_deaths_smoking</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Entity&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span>  <span class="s2">&quot;Deaths - Cause: All causes - Risk: Smoking - OWID - Sex: Both - Age: Age-standardized (Percent)&quot;</span><span class="p">:</span> <span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">})</span>
+<span class="n">share_deaths_smoking</span> <span class="o">=</span> <span class="n">share_deaths_smoking</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">share_deaths_smoking</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Sex&#39;</span><span class="p">,</span> <span class="s1">&#39;Both sexes&#39;</span><span class="p">)</span>
+<span class="n">share_deaths_smoking</span> <span class="o">=</span> <span class="n">share_deaths_smoking</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">share_deaths_smoking</span> <span class="o">=</span> <span class="n">share_deaths_smoking</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">]]</span>
+<span class="c1"># Compute % of missing values in smoking deaths consumption data frame before join</span>
+<span class="n">percentage_missing_values_smoking_deaths_before</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">share_deaths_smoking</span><span class="p">[</span><span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">share_deaths_smoking</span><span class="p">[</span><span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Share of Smoking Deaths Before Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_smoking_deaths_before</span><span class="p">)</span>
+<span class="c1"># Merge smoking death data with heart disease mortality data frame, Substituting all NaN values in smoking death percentage column of main dataframe with mean values of corresponding years</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">share_deaths_smoking</span><span class="p">[</span><span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">]</span>
+<span class="c1"># Compute % of missing values in smoking death percentage column after join</span>
+<span class="n">percentage_missing_values_smoking_deaths_after</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Smoking Death Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Share of Smoking Deaths After Join: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_smoking_deaths_after</span><span class="p">)</span>
+<span class="n">heart_disease_death_rates</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percentage of Missing Values for Share of Smoking Deaths Before Join:  0.0
+Percentage of Missing Values for Share of Smoking Deaths After Join:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[423]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
+                        <th>% of population with anxiety disorders</th>
+                        <th>Mean BMI</th>
+                        <th>Mean HDL Cholesterol</th>
+                        <th>Low Physical Activity DALYs</th>
+                        <th>Spirits Consumption</th>
+                        <th>Smoking Death Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>618.45</td>
+                        <td>4.739260</td>
+                        <td>22.900000</td>
+                        <td>1.100000</td>
+                        <td>87161.46</td>
+                        <td>1.273202</td>
+                        <td>8.38</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>607.69</td>
+                        <td>4.766758</td>
+                        <td>23.000000</td>
+                        <td>1.100000</td>
+                        <td>89240.38</td>
+                        <td>1.244211</td>
+                        <td>8.51</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>600.55</td>
+                        <td>4.793179</td>
+                        <td>23.200000</td>
+                        <td>1.100000</td>
+                        <td>91722.71</td>
+                        <td>0.010000</td>
+                        <td>8.51</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>597.02</td>
+                        <td>4.810425</td>
+                        <td>23.300000</td>
+                        <td>1.100000</td>
+                        <td>94787.74</td>
+                        <td>1.203114</td>
+                        <td>8.54</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>591.59</td>
+                        <td>4.815518</td>
+                        <td>23.400000</td>
+                        <td>1.100000</td>
+                        <td>97995.82</td>
+                        <td>0.010000</td>
+                        <td>8.58</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>331.36</td>
+                        <td>4.113508</td>
+                        <td>24.191756</td>
+                        <td>1.169098</td>
+                        <td>6607.48</td>
+                        <td>1.617827</td>
+                        <td>9.67</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>330.58</td>
+                        <td>4.119858</td>
+                        <td>24.120932</td>
+                        <td>1.169612</td>
+                        <td>6911.81</td>
+                        <td>1.517327</td>
+                        <td>9.80</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>329.57</td>
+                        <td>4.124367</td>
+                        <td>24.157551</td>
+                        <td>1.168585</td>
+                        <td>7196.88</td>
+                        <td>1.503970</td>
+                        <td>9.94</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>327.64</td>
+                        <td>4.126087</td>
+                        <td>24.128846</td>
+                        <td>1.171152</td>
+                        <td>7424.67</td>
+                        <td>1.489531</td>
+                        <td>10.06</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>324.92</td>
+                        <td>4.126698</td>
+                        <td>24.046983</td>
+                        <td>1.171152</td>
+                        <td>7655.22</td>
+                        <td>1.472129</td>
+                        <td>10.15</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 9 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing text_cell rendered">
+        <div class="prompt input_prompt">
+        </div>
+        <div class="inner_cell">
+          <div class="text_cell_render border-box-sizing rendered_html">
+            <h3 id="Add-raised-blood-pressure-data"><strong>Add raised blood pressure data</strong><a
+                class="anchor-link" href="#Add-raised-blood-pressure-data">&#182;</a></h3>
+            <p>The seventh step we will take is to import the <a
+                href="https://www.who.int/data/gho/data/indicators/indicator-details/GHO/raised-blood-pressure-(sbp-=140-or-dbp-=90">raised
+                blood pressure data</a>-(age-standardized-estimate)), which is an age-standardized estimate (% of
+              population with raised blood pressure). We define raised blood pressure as SBP (systolic blood
+              pressure)&gt;= 140 or DBP (diastolic blood pressure) &gt;= 90 and remove the columns we aren't going to
+              use. This feature data comes from the World Health Organization. The raised blood pressure percentage (for
+              each country's population) table includes data from 2012-2015 that has raised blood pressure percentages
+              for both sexes combined. There are no missing values in the raised blood pressure percentage data before
+              joining, so no initial imputation is required. After merging the raised blood pressure percentage data
+              with the heart disease mortality data frame and substituting all NaN blood pressure values for 2012-2015
+              with mean of the corresponding year and 2016-2017 values with the mean for the corresponding country, we
+              can see that there are no missing values in the raised blood pressure percentage column of the main data
+              frame. Thus, no further imputation will be required at that point.</p>
+
+          </div>
+        </div>
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[424]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># Ndenko: raised blood pressure, Deaths from diabetes by type, Health expenditure as % of GDP</span>
+<span class="c1"># Import raised blood pressure data, select and rename relevant columns, and choose all rows that have both sexes. Will have to fill in missing 2016 and 2017 data later.</span>
+<span class="n">blood_pressure</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/bld pressure.csv&#39;</span><span class="p">)</span>
+<span class="n">blood_pressure</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="p">[[</span><span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;Period&#39;</span><span class="p">,</span> <span class="s1">&#39;Dim1&#39;</span><span class="p">,</span><span class="s1">&#39;Dim2&#39;</span><span class="p">,</span> <span class="s1">&#39;FactValueNumeric&#39;</span><span class="p">]]</span>
+<span class="n">blood_pressure</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Period&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim1&quot;</span><span class="p">:</span><span class="s2">&quot;Sex&quot;</span><span class="p">,</span> <span class="s2">&quot;Dim2&quot;</span><span class="p">:</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="s2">&quot;FactValueNumeric&quot;</span><span class="p">:</span> <span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">})</span>
+<span class="c1"># # Sort raised blood pressure data by country and year and reset indexes and choose only country, year, and raised blood pressure percentage columns</span>
+<span class="n">blood_pressure</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">blood_pressure</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="p">[</span><span class="n">blood_pressure</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Both sexes&quot;</span><span class="p">]</span>
+<span class="n">blood_pressure</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]]</span>
+<span class="n">blood_pressure</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Compute % of missing values in smoking deaths consumption data frame before join</span>
+<span class="n">percentage_missing_values_raised_blood_pressure_before</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">blood_pressure</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">blood_pressure</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Raised Blood Pressure Before Join and Initial Imputation: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_raised_blood_pressure_before</span><span class="p">)</span>
+<span class="c1"># Fill all missing values inside the original blood pressure data frame with the average blood pressure of that year and confirm no more missing values in blood pressure data frame after initial imputation</span>
+<span class="n">blood_pressure</span><span class="p">[</span><span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="p">[</span><span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">blood_pressure</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">current_year_bp_rows</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="p">[</span><span class="n">blood_pressure</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]]</span>
+        <span class="n">blood_pressure_mean</span>  <span class="o">=</span> <span class="n">current_year_bp_rows</span><span class="p">[</span><span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">blood_pressure</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blood_pressure_mean</span>
+<span class="n">percentage_missing_values_raised_blood_pressure_before_2</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">blood_pressure</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">blood_pressure</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Raised Blood Pressure Before Join and After Initial Imputation: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_raised_blood_pressure_before_2</span><span class="p">)</span>
+<span class="c1"># Merge raised blood pressure data with heart disease mortality data frame, substitute all NaN blood pressure values for 2012-2015 with 0.0 and eventually mean blood pressure of that particular year</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blood_pressure</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span>
+<span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2016</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">current_year_bp_rows2</span> <span class="o">=</span> <span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">]]</span>
+        <span class="n">blood_pressure_mean2</span>  <span class="o">=</span> <span class="n">current_year_bp_rows</span><span class="p">[</span><span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">heart_disease_death_rates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s1">&#39;Raised Blood Pressure Percentage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blood_pressure_mean2</span>
+
+<span class="c1"># Substitute all 2016 and 2017 blood pressure values (0.0) with mean raised blood pressure for corresponding countries (In Progress)</span>
+<span class="c1">#for country in heart_disease_death_rates[&#39;Country&#39;].unique():</span>
+    <span class="c1">#country_mean_blood_pressure_nonnull_rows = heart_disease_death_rates[(heart_disease_death_rates[&#39;Country&#39;] == country) &amp; (heart_disease_death_rates[&#39;Raised Blood Pressure Percentage&#39;] != 0.0)]</span>
+    <span class="c1">#country_mean_blood_pressure_nonnull = country_mean_blood_pressure_nonnull_rows[&#39;Raised Blood Pressure Percentage&#39;].mean(axis = 0)</span>
+    <span class="c1">#country_mean_blood_pressure_null_row_indexes = heart_disease_death_rates[(heart_disease_death_rates[&#39;Country&#39;] == country) &amp; (heart_disease_death_rates[&#39;Raised Blood Pressure Percentage&#39;] != 0.0)].index</span>
+    <span class="c1">#for i in country_mean_blood_pressure_null_row_indexes:</span>
+        
+<span class="c1">#print(heart_disease_death_rates[(heart_disease_death_rates[&#39;Country&#39;] == &#39;Zimbabwe&#39;) &amp; (heart_disease_death_rates[&#39;Raised Blood Pressure Percentage&#39;] != 0.0)].index)</span>
+
+<span class="c1"># Compute % of missing values in smoking death percentage column after join</span>
+<span class="n">percentage_missing_values_raised_blood_pressure_after</span> <span class="o">=</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span><span class="o">/</span><span class="n">heart_disease_death_rates</span><span class="p">[</span><span class="s2">&quot;Raised Blood Pressure Percentage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">*</span> <span class="mf">100.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Percentage of Missing Values for Raised Blood Pressure After Join and Imputation: &quot;</span><span class="p">,</span> <span class="n">percentage_missing_values_raised_blood_pressure_after</span><span class="p">)</span>
+<span class="n">heart_disease_death_rates</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt"></div>
+
+
+              <div class="output_subarea output_stream output_stdout output_text">
+                <pre>Percentage of Missing Values for Raised Blood Pressure Before Join and Initial Imputation:  2.094240837696335
+Percentage of Missing Values for Raised Blood Pressure Before Join and After Initial Imputation:  0.0
+Index([1362, 1363, 1364, 1365], dtype=&#39;int64&#39;)
+Percentage of Missing Values for Raised Blood Pressure After Join and Imputation:  0.0
+</pre>
+              </div>
+            </div>
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[424]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Heart Disease Mortality Rate (Deaths per 100K people)</th>
+                        <th>% of population with anxiety disorders</th>
+                        <th>Mean BMI</th>
+                        <th>Mean HDL Cholesterol</th>
+                        <th>Low Physical Activity DALYs</th>
+                        <th>Spirits Consumption</th>
+                        <th>Smoking Death Percentage</th>
+                        <th>Raised Blood Pressure Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>618.45</td>
+                        <td>4.739260</td>
+                        <td>22.900000</td>
+                        <td>1.100000</td>
+                        <td>87161.46</td>
+                        <td>1.273202</td>
+                        <td>8.38</td>
+                        <td>30.500000</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>607.69</td>
+                        <td>4.766758</td>
+                        <td>23.000000</td>
+                        <td>1.100000</td>
+                        <td>89240.38</td>
+                        <td>1.244211</td>
+                        <td>8.51</td>
+                        <td>30.500000</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>600.55</td>
+                        <td>4.793179</td>
+                        <td>23.200000</td>
+                        <td>1.100000</td>
+                        <td>91722.71</td>
+                        <td>0.010000</td>
+                        <td>8.51</td>
+                        <td>30.600000</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>597.02</td>
+                        <td>4.810425</td>
+                        <td>23.300000</td>
+                        <td>1.100000</td>
+                        <td>94787.74</td>
+                        <td>1.203114</td>
+                        <td>8.54</td>
+                        <td>30.600000</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>591.59</td>
+                        <td>4.815518</td>
+                        <td>23.400000</td>
+                        <td>1.100000</td>
+                        <td>97995.82</td>
+                        <td>0.010000</td>
+                        <td>8.58</td>
+                        <td>29.700000</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>331.36</td>
+                        <td>4.113508</td>
+                        <td>24.191756</td>
+                        <td>1.169098</td>
+                        <td>6607.48</td>
+                        <td>1.617827</td>
+                        <td>9.67</td>
+                        <td>24.297181</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>330.58</td>
+                        <td>4.119858</td>
+                        <td>24.120932</td>
+                        <td>1.169612</td>
+                        <td>6911.81</td>
+                        <td>1.517327</td>
+                        <td>9.80</td>
+                        <td>24.297181</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>329.57</td>
+                        <td>4.124367</td>
+                        <td>24.157551</td>
+                        <td>1.168585</td>
+                        <td>7196.88</td>
+                        <td>1.503970</td>
+                        <td>9.94</td>
+                        <td>24.297181</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>327.64</td>
+                        <td>4.126087</td>
+                        <td>24.128846</td>
+                        <td>1.171152</td>
+                        <td>7424.67</td>
+                        <td>1.489531</td>
+                        <td>10.06</td>
+                        <td>0.000000</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>324.92</td>
+                        <td>4.126698</td>
+                        <td>24.046983</td>
+                        <td>1.171152</td>
+                        <td>7655.22</td>
+                        <td>1.472129</td>
+                        <td>10.15</td>
+                        <td>0.000000</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 10 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[425]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="n">diabetes_deaths_both_types</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/deaths-from-diabetes-by-type.csv&#39;</span><span class="p">)</span>
+<span class="n">diabetes_deaths_both_types</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="p">[[</span><span class="s1">&#39;Entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">,</span><span class="s1">&#39;Deaths - Diabetes mellitus type 1 - Sex: Both - Age: All Ages (Number)&#39;</span><span class="p">,</span> <span class="s1">&#39;Deaths - Diabetes mellitus type 2 - Sex: Both - Age: All Ages (Number)&#39;</span><span class="p">]]</span>
+<span class="n">diabetes_deaths_both_types</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Entity&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Deaths - Diabetes mellitus type 1 - Sex: Both - Age: All Ages (Number)&quot;</span><span class="p">:</span><span class="s2">&quot;Type 1 Deaths&quot;</span><span class="p">,</span><span class="s2">&quot;Deaths - Diabetes mellitus type 2 - Sex: Both - Age: All Ages (Number)&quot;</span><span class="p">:</span><span class="s2">&quot;Type 2 Deaths&quot;</span><span class="p">})</span>
+<span class="n">diabetes_deaths_both_types</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="c1"># Since the source indicated both sexes, and all ages, add columns to indicate that</span>
+<span class="c1"># create the values we need to add 2 long arrays</span>
+<span class="n">both_sexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">diabetes_deaths_both_types</span><span class="p">),</span> <span class="s2">&quot;Both sexes&quot;</span><span class="p">)</span>
+<span class="n">all_ages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">diabetes_deaths_both_types</span><span class="p">),</span> <span class="s2">&quot;All ages&quot;</span><span class="p">)</span>
+<span class="c1"># add those values as new columns</span>
+<span class="n">diabetes_deaths_both_types</span><span class="p">[</span><span class="s1">&#39;Sex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">both_sexes</span>
+<span class="n">diabetes_deaths_both_types</span><span class="p">[</span><span class="s1">&#39;Age&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_ages</span>
+<span class="c1"># rearrange the order to match the format of previous tables</span>
+<span class="n">desired_order</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span><span class="s1">&#39;Sex&#39;</span><span class="p">,</span><span class="s1">&#39;Age&#39;</span><span class="p">,</span><span class="s1">&#39;Type 1 Deaths&#39;</span><span class="p">,</span><span class="s1">&#39;Type 2 Deaths&#39;</span><span class="p">]</span>
+<span class="n">diabetes_deaths_both_types</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="p">[</span><span class="n">desired_order</span><span class="p">]</span>
+<span class="c1"># this data is from 1990 - 2019, filter it for only 2012-2017</span>
+<span class="n">diabetes_deaths_both_types</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="p">[</span><span class="n">diabetes_deaths_both_types</span><span class="p">[</span><span class="s2">&quot;Year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">2017</span><span class="p">)]</span>
+<span class="n">diabetes_deaths_both_types</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">diabetes_deaths_both_types</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[425]:</div>
 
 
 
@@ -16630,7 +18319,9 @@ Adapted from GitHub theme
                         <th>Country</th>
                         <th>Year</th>
                         <th>Sex</th>
-                        <th>Mean BMI</th>
+                        <th>Age</th>
+                        <th>Type 1 Deaths</th>
+                        <th>Type 2 Deaths</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -16639,35 +18330,45 @@ Adapted from GitHub theme
                         <td>Afghanistan</td>
                         <td>2012</td>
                         <td>Both sexes</td>
-                        <td>22.9</td>
+                        <td>All ages</td>
+                        <td>435</td>
+                        <td>3247</td>
                       </tr>
                       <tr>
                         <th>1</th>
                         <td>Afghanistan</td>
                         <td>2013</td>
                         <td>Both sexes</td>
-                        <td>23.0</td>
+                        <td>All ages</td>
+                        <td>445</td>
+                        <td>3381</td>
                       </tr>
                       <tr>
                         <th>2</th>
                         <td>Afghanistan</td>
                         <td>2014</td>
                         <td>Both sexes</td>
-                        <td>23.2</td>
+                        <td>All ages</td>
+                        <td>450</td>
+                        <td>3535</td>
                       </tr>
                       <tr>
                         <th>3</th>
                         <td>Afghanistan</td>
                         <td>2015</td>
                         <td>Both sexes</td>
-                        <td>23.3</td>
+                        <td>All ages</td>
+                        <td>454</td>
+                        <td>3689</td>
                       </tr>
                       <tr>
                         <th>4</th>
                         <td>Afghanistan</td>
                         <td>2016</td>
                         <td>Both sexes</td>
-                        <td>23.4</td>
+                        <td>All ages</td>
+                        <td>462</td>
+                        <td>3887</td>
                       </tr>
                       <tr>
                         <th>...</th>
@@ -16675,50 +18376,516 @@ Adapted from GitHub theme
                         <td>...</td>
                         <td>...</td>
                         <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
                       </tr>
                       <tr>
-                        <th>970</th>
-                        <td>Zimbabwe</td>
-                        <td>2012</td>
-                        <td>Both sexes</td>
-                        <td>23.7</td>
-                      </tr>
-                      <tr>
-                        <th>971</th>
+                        <th>1363</th>
                         <td>Zimbabwe</td>
                         <td>2013</td>
                         <td>Both sexes</td>
-                        <td>23.7</td>
+                        <td>All ages</td>
+                        <td>104</td>
+                        <td>2902</td>
                       </tr>
                       <tr>
-                        <th>972</th>
+                        <th>1364</th>
                         <td>Zimbabwe</td>
                         <td>2014</td>
                         <td>Both sexes</td>
-                        <td>23.8</td>
+                        <td>All ages</td>
+                        <td>105</td>
+                        <td>2988</td>
                       </tr>
                       <tr>
-                        <th>973</th>
+                        <th>1365</th>
                         <td>Zimbabwe</td>
                         <td>2015</td>
                         <td>Both sexes</td>
-                        <td>23.8</td>
+                        <td>All ages</td>
+                        <td>109</td>
+                        <td>3067</td>
                       </tr>
                       <tr>
-                        <th>974</th>
+                        <th>1366</th>
                         <td>Zimbabwe</td>
                         <td>2016</td>
                         <td>Both sexes</td>
-                        <td>23.8</td>
+                        <td>All ages</td>
+                        <td>113</td>
+                        <td>3146</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>116</td>
+                        <td>3197</td>
                       </tr>
                     </tbody>
                   </table>
-                  <p>975 rows × 4 columns</p>
+                  <p>1368 rows × 6 columns</p>
                 </div>
               </div>
 
             </div>
 
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[426]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># filter the table down to just type 1 deaths</span>
+<span class="n">diabetes_deaths_type1</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span><span class="s1">&#39;Sex&#39;</span><span class="p">,</span><span class="s1">&#39;Age&#39;</span><span class="p">,</span><span class="s1">&#39;Type 1 Deaths&#39;</span><span class="p">]]</span>
+<span class="n">diabetes_deaths_type1</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[426]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Sex</th>
+                        <th>Age</th>
+                        <th>Type 1 Deaths</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>435</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>445</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>450</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>454</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>462</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>104</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>105</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>109</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>113</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>116</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 5 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[427]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="c1"># filter the table down to just type 1 deaths</span>
+<span class="n">diabetes_deaths_type2</span> <span class="o">=</span> <span class="n">diabetes_deaths_both_types</span><span class="p">[[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span><span class="s1">&#39;Sex&#39;</span><span class="p">,</span><span class="s1">&#39;Age&#39;</span><span class="p">,</span><span class="s1">&#39;Type 2 Deaths&#39;</span><span class="p">]]</span>
+<span class="n">diabetes_deaths_type2</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[427]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Sex</th>
+                        <th>Age</th>
+                        <th>Type 2 Deaths</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3247</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3381</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3535</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3689</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3887</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1363</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>2902</td>
+                      </tr>
+                      <tr>
+                        <th>1364</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>2988</td>
+                      </tr>
+                      <tr>
+                        <th>1365</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3067</td>
+                      </tr>
+                      <tr>
+                        <th>1366</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3146</td>
+                      </tr>
+                      <tr>
+                        <th>1367</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>Both sexes</td>
+                        <td>All ages</td>
+                        <td>3197</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1368 rows × 5 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[428]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span><span class="n">health_expenditure_as_percent_gdp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/health expenditure as percentage of GDP.csv&#39;</span><span class="p">)</span>
+<span class="n">health_expenditure_as_percent_gdp</span> <span class="o">=</span> <span class="n">health_expenditure_as_percent_gdp</span><span class="p">[[</span><span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;Period&#39;</span><span class="p">,</span> <span class="s1">&#39;FactValueNumeric&#39;</span><span class="p">]]</span>
+<span class="n">health_expenditure_as_percent_gdp</span> <span class="o">=</span> <span class="n">health_expenditure_as_percent_gdp</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Location&quot;</span><span class="p">:</span> <span class="s2">&quot;Country&quot;</span><span class="p">,</span> <span class="s2">&quot;Period&quot;</span><span class="p">:</span> <span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="s2">&quot;FactValueNumeric&quot;</span><span class="p">:</span> <span class="s2">&quot;Healthcare Expenditure (</span><span class="si">% o</span><span class="s2">f GDP)&quot;</span><span class="p">})</span>
+<span class="n">health_expenditure_as_percent_gdp</span> <span class="o">=</span> <span class="n">health_expenditure_as_percent_gdp</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Year&#39;</span><span class="p">])</span>
+<span class="n">health_expenditure_as_percent_gdp</span> <span class="o">=</span> <span class="n">health_expenditure_as_percent_gdp</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="n">health_expenditure_as_percent_gdp</span>
+</pre>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="output_wrapper">
+          <div class="output">
+
+
+            <div class="output_area">
+
+              <div class="prompt output_prompt">Out[428]:</div>
+
+
+
+              <div class="output_html rendered_html output_subarea output_execute_result">
+                <div>
+                  <style scoped>
+                    .dataframe tbody tr th:only-of-type {
+                      vertical-align: middle;
+                    }
+
+                    .dataframe tbody tr th {
+                      vertical-align: top;
+                    }
+
+                    .dataframe thead th {
+                      text-align: right;
+                    }
+                  </style>
+                  <table border="1" class="dataframe">
+                    <thead>
+                      <tr style="text-align: right;">
+                        <th></th>
+                        <th>Country</th>
+                        <th>Year</th>
+                        <th>Healthcare Expenditure (% of GDP)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th>0</th>
+                        <td>Afghanistan</td>
+                        <td>2012</td>
+                        <td>7.90</td>
+                      </tr>
+                      <tr>
+                        <th>1</th>
+                        <td>Afghanistan</td>
+                        <td>2013</td>
+                        <td>8.81</td>
+                      </tr>
+                      <tr>
+                        <th>2</th>
+                        <td>Afghanistan</td>
+                        <td>2014</td>
+                        <td>9.53</td>
+                      </tr>
+                      <tr>
+                        <th>3</th>
+                        <td>Afghanistan</td>
+                        <td>2015</td>
+                        <td>10.11</td>
+                      </tr>
+                      <tr>
+                        <th>4</th>
+                        <td>Afghanistan</td>
+                        <td>2016</td>
+                        <td>11.82</td>
+                      </tr>
+                      <tr>
+                        <th>...</th>
+                        <td>...</td>
+                        <td>...</td>
+                        <td>...</td>
+                      </tr>
+                      <tr>
+                        <th>1127</th>
+                        <td>Zimbabwe</td>
+                        <td>2013</td>
+                        <td>7.11</td>
+                      </tr>
+                      <tr>
+                        <th>1128</th>
+                        <td>Zimbabwe</td>
+                        <td>2014</td>
+                        <td>8.13</td>
+                      </tr>
+                      <tr>
+                        <th>1129</th>
+                        <td>Zimbabwe</td>
+                        <td>2015</td>
+                        <td>7.45</td>
+                      </tr>
+                      <tr>
+                        <th>1130</th>
+                        <td>Zimbabwe</td>
+                        <td>2016</td>
+                        <td>7.47</td>
+                      </tr>
+                      <tr>
+                        <th>1131</th>
+                        <td>Zimbabwe</td>
+                        <td>2017</td>
+                        <td>6.36</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p>1132 rows × 3 columns</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="cell border-box-sizing code_cell rendered">
+        <div class="input">
+          <div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+          <div class="inner_cell">
+            <div class="input_area">
+              <div class=" highlight hl-ipython3">
+                <pre><span></span> 
+</pre>
+              </div>
+
+            </div>
           </div>
         </div>
 
